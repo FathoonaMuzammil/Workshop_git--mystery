@@ -6,19 +6,8 @@ import { fileURLToPath } from 'node:url'
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const HANDOVER = 'activity/case/clues/handover-note.md'
-const IDENTITY = { name: 'Records Desk', email: 'records-desk@fb-01.invalid' }
 const SIGNOFF_SUBJECT = 'docs: remove the sign-off line from the handover note'
-
-const handoverWithSignoff = `# Archive handover note
-
-**Filed:** 9 October, Heliograph launch records
-**Filed by:** Records desk
-
-> Final briefing sign-off: signed at 09:20 by Deputy Archivist N. Perera.
-
-The morning briefing was signed off before launch and the signed copy was handed to the
-courier desk for onward delivery.
-`
+const SIGNOFF_LINE = '> Final briefing sign-off: signed at 09:20 by Deputy Archivist N. Perera.\n\n'
 
 function git(args, { allowFail = false } = {}) {
   try {
@@ -36,16 +25,26 @@ function git(args, { allowFail = false } = {}) {
 }
 
 function commit(args) {
-  return git([
-    '-c',
-    `user.name=${IDENTITY.name}`,
-    '-c',
-    `user.email=${IDENTITY.email}`,
-    '-c',
-    'commit.gpgsign=false',
-    'commit',
-    ...args,
-  ])
+  return git(['-c', 'commit.gpgsign=false', 'commit', ...args])
+}
+
+/**
+ * The case is fiction; the commit author is whoever prepared the repository.
+ * This script must never write a repository-local identity, or a published
+ * starter repository gets attributed to the case fiction instead of its author.
+ */
+function requireIdentity() {
+  const name = git(['config', '--get', 'user.name'], { allowFail: true })
+  const email = git(['config', '--get', 'user.email'], { allowFail: true })
+  if (!name?.trim() || !email?.trim()) {
+    process.stderr.write(
+      'Git has no author identity configured, so the case history cannot be written.\n' +
+        'Set one, then run this again:\n' +
+        '  git config --global user.name "Your Name"\n' +
+        '  git config --global user.email you@example.com\n',
+    )
+    process.exit(1)
+  }
 }
 
 function writeHandover(content) {
@@ -60,13 +59,19 @@ function main() {
     process.exit(1)
   }
 
+  requireIdentity()
   git(['init', '--initial-branch=main'])
-  git(['config', 'user.name', IDENTITY.name])
-  git(['config', 'user.email', IDENTITY.email])
   git(['config', 'commit.gpgsign', 'false'])
 
   // 1. The case opens. The handover note still carries the sign-off line.
-  writeHandover(handoverWithSignoff)
+  writeHandover(`# Archive handover note
+
+**Filed:** 9 October, Heliograph launch records
+**Filed by:** Records desk
+
+${SIGNOFF_LINE}The morning briefing was signed off before launch and the signed copy was handed to the
+courier desk for onward delivery.
+`)
   git(['add', '.gitignore', 'activity/case/summary.md', 'activity/case/findings.md', HANDOVER])
   commit([
     '-m',
@@ -85,10 +90,7 @@ function main() {
   ])
 
   // 3. The sign-off line is removed from the note, so it survives only in history.
-  writeHandover(readFileSync(resolve(repoRoot, HANDOVER), 'utf8').replace(
-    /> Final briefing sign-off: signed at 09:20 by Deputy Archivist N\. Perera\.\n\n/,
-    '',
-  ))
+  writeHandover(readFileSync(resolve(repoRoot, HANDOVER), 'utf8').replace(SIGNOFF_LINE, ''))
   git(['add', HANDOVER])
   commit([
     '-m',

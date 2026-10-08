@@ -150,7 +150,12 @@ export function createDashboard({ repoRoot, port = DASHBOARD_PORT, host = HOST, 
           resolvePromise(server.address())
         })
       }),
-    close: () => new Promise((resolvePromise) => server.close(() => resolvePromise())),
+    close: () =>
+      new Promise((resolvePromise) => {
+        // Drop keep-alive sockets so shutdown cannot hang on an idle browser tab.
+        server.closeAllConnections?.()
+        server.close(() => resolvePromise())
+      }),
   }
 }
 

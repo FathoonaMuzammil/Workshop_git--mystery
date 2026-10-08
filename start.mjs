@@ -122,7 +122,8 @@ async function main() {
 
   const stop = async (code) => {
     slides.kill('SIGTERM')
-    await dashboard.close().catch(() => {})
+    // Never let a lingering socket keep the port bound after shutdown.
+    await Promise.race([dashboard.close().catch(() => {}), delay(2000)])
     process.exit(code)
   }
 

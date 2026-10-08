@@ -41,7 +41,11 @@ describe('one start command', () => {
     const slidesUp = await waitUntil(() => probe(`http://127.0.0.1:${SLIDES_PORT}/`), 150_000)
     const dashboardUp = await waitUntil(() => probe(`http://127.0.0.1:${DASHBOARD_PORT}/health`), 20_000)
 
-    expect(output).toContain(`http://127.0.0.1:${DASHBOARD_PORT}`)
+    // Both servers answer before the launcher has necessarily flushed its summary.
+    const announced = await waitUntil(async () => output.includes(`http://127.0.0.1:${DASHBOARD_PORT}`), 15_000)
+
+    expect(announced).toBe(true)
+    expect(output).toContain(`http://127.0.0.1:${SLIDES_PORT}`)
     expect(slidesUp).toBe(true)
     expect(dashboardUp).toBe(true)
 
@@ -57,6 +61,13 @@ describe('one start command', () => {
   }, 240_000)
 
   test('refuses to start on an occupied port and says how to recover', async () => {
+    // The previous test just shut the launcher down; wait for the port to be free.
+    const released = await waitUntil(
+      async () => !(await probe(`http://127.0.0.1:${DASHBOARD_PORT}/health`)),
+      30_000,
+    )
+    expect(released).toBe(true)
+
     const blocker = createServer((_req, res) => res.end('blocked'))
     await new Promise((r) => blocker.listen(DASHBOARD_PORT, '127.0.0.1', r))
 
