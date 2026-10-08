@@ -1,0 +1,13 @@
+# Planning material: not part of the learner-facing activity
+/SPEC.md
+/CONTEXT.md
+
+# Learner progress state (answers, confirmations, transient checkpoint captures)
+.workshop-state/
+
+node_modules/
+dist/
+.slidev/
+*.log
+
+.DS_Store
