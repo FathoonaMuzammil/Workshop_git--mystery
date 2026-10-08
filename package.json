@@ -17,9 +17,11 @@
     "slides": "bun run ./node_modules/@slidev/cli/bin/slidev.mjs slides/index.md --port 3030",
     "seed": "bun run ./scripts/seed-history.mjs",
     "rehearse": "bun run ./scripts/rehearse.mjs",
-    "test": "bun test",
-    "test:rehearsal": "bun test test/conflict.test.mjs",
-    "test:smoke": "bun test test/startup.test.mjs"
+    "sync-fonts": "bun run ./scripts/sync-fonts.mjs",
+    "test": "bun test tests/",
+    "test:missions": "bun test tests/missions.test.mjs",
+    "test:rehearsal": "bun test tests/missions.test.mjs --test-name-pattern rehearsal",
+    "test:startup": "bun test tests/startup.test.mjs"
   },
   "type": "module",
   "dependencies": {
