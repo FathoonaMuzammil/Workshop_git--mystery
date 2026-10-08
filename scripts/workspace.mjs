@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 
 export const sourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
-const SKIP = new Set(['node_modules', '.git', '.workshop-state', '.slidev', 'dist'])
+const SKIP = new Set(['node_modules', '.git', '.workshop-state', '.slidev', 'dist', 'first-byte-git-mystery'])
 const SKIP_ANYWHERE = new Set(['SPEC.md', 'CONTEXT.md', '.DS_Store'])
 
 export function git(cwd, args, { allowFail = false } = {}) {
@@ -55,6 +55,11 @@ export function makeWorkspace(prefix = 'first-byte-') {
 
   const clone = resolve(root, 'first-byte-git-mystery')
   git(root, ['clone', starter, clone])
+
+  // A real learner must configure this too; tests do it so commits succeed.
+  git(clone, ['config', 'user.name', 'Workshop Learner'])
+  git(clone, ['config', 'user.email', 'learner@fb-01.invalid'])
+  git(clone, ['config', 'commit.gpgsign', 'false'])
 
   return { root, starter, clone, participantRemote }
 }
