@@ -319,9 +319,12 @@ A **branch** is a movable label on a commit.
 
 ```bash
 git switch -c lead-a
-# edit, add, commit, push
+# edit, diff, add, commit
+git push -u origin lead-a
 git switch main
 git switch -c lead-b
+# edit, diff, add, commit
+git push -u origin lead-b
 ```
 
 ::right::
@@ -424,6 +427,7 @@ The markers are not the answer. They are two candidate answers, side by side.
 ```bash
 git status
 git add activity/case/summary.md
+git status
 git commit -m "Resolve the conflict"
 git push
 ```

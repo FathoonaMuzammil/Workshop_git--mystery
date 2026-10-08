@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Learner guide — First Byte</title>
+    <link rel="stylesheet" href="/tokens.css" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#guide-heading">Skip to learner guide</a>
+    <nav class="nav" aria-label="Workshop">
+      <div class="nav-inner">
+        <span class="brand-mark">First Byte</span>
+        <div class="nav-actions">
+          <a class="ghost-pill-button" href="/">Progress dashboard</a>
+          <a class="pill-button" href="http://127.0.0.1:3030">Concept slides</a>
+        </div>
+      </div>
+    </nav>
+    <main class="rail guide">
+      <aside class="card" aria-label="Guide contents">
+        <h2 class="card-title">Follow the investigation</h2>
+        <ol>
+          <li><a href="#m0-arrive-and-launch">M0 · Arrive and launch</a></li>
+          <li><a href="#m1-publish-a-baseline">M1 · Publish a baseline</a></li>
+          <li><a href="#m2-inspect-the-case">M2 · Inspect the case</a></li>
+          <li><a href="#m3-make-a-local-finding">M3 · Make a local finding</a></li>
+          <li><a href="#m4-save-the-finding">M4 · Save the finding</a></li>
+          <li><a href="#m5-prepare-two-leads">M5 · Prepare two leads</a></li>
+          <li><a href="#m6-open-two-pull-requests">M6 · Open two pull requests</a></li>
+          <li><a href="#m7-encounter-and-resolve">M7 · Encounter and resolve</a></li>
+          <li><a href="#m8-finish-and-retrieve">M8 · Finish and retrieve</a></li>
+        </ol>
+        <p><a href="#recovery">Recovery help</a></p>
+        <p><a href="https://docs.icts.fyi/docs/en/workshops/first-byte-episode-1">Workshop overview</a> · <a href="https://docs.icts.fyi/docs/en/workshops/first-byte-episode-1/prerequisites">Prerequisites</a></p>
+      </aside>
+      <div>
+        <section class="card">
+          <h1 id="guide-heading" tabindex="-1">Git Mystery learner guide</h1>
+          <p>Follow these steps in order. Read the matching concept slides, do the work in your terminal and editor, then refresh the dashboard. The evidence and Git history contain the mystery answers.</p>
+          <p>Run Git commands from the repository root in a second terminal. Keep the terminal running <code>bun run start</code> open throughout the activity. Replace capitalized placeholders with your own values.</p>
+        </section>
+        <section class="card" id="m0-arrive-and-launch">
+          <h2 class="card-title">M0 · Arrive and launch</h2>
+          <pre class="code-block"><code>git clone https://github.com/universitysjp/git-mystery.git
+cd git-mystery
+bun install
+bun run start</code></pre>
+          <p>The slides open on port 3030 and the dashboard on port 3031. If browser opening is unavailable, open the two URLs printed in your terminal. Open the cloned folder in your editor and locate <code>activity/case/</code>.</p>
+          <p>Expected state: the dashboard detects a Git checkout. Only edit the case files during the investigation.</p>
+        </section>
+        <section class="card" id="m1-publish-a-baseline">
+          <h2 class="card-title">M1 · Publish a baseline</h2>
+          <ol>
+            <li>On GitHub, create a repository in your own account. Leave it empty: do not initialize a README, license, or ignore file.</li>
+            <li>Copy that repository's HTTPS or SSH URL. Replace <code>YOUR_REPOSITORY_URL</code> below with it.</li>
+          </ol>
+          <pre class="code-block"><code>git remote rename origin starter
+git remote add origin YOUR_REPOSITORY_URL
+git remote -v
+git push -u origin main</code></pre>
+          <p><code>starter</code> points to the workshop repository; <code>origin</code> points to your own repository. Sign in through your Git credential manager if prompted. Refresh the dashboard after the push.</p>
+          <p>Expected state: your GitHub repository contains the starter files and history, and M1 is solved.</p>
+        </section>
+        <section class="card" id="m2-inspect-the-case">
+          <h2 class="card-title">M2 · Inspect the case</h2>
+          <ol>
+            <li>Read the case README, clues, and summary in your editor.</li>
+            <li>Check the present state and scan the commit history.</li>
+          </ol>
+          <pre class="code-block"><code>git status
+git log --oneline
+git show COMMIT_ID</code></pre>
+          <p>Replace <code>COMMIT_ID</code> with the short hash of a relevant handover-note commit. Read its diff, including removed lines. Find who signed off the briefing and at what time; record your answer in the dashboard.</p>
+          <p>Expected state: the working tree is clean and the history observation is accepted. The guide does not supply that observation.</p>
+        </section>
+        <section class="card" id="m3-make-a-local-finding">
+          <h2 class="card-title">M3 · Make a local finding</h2>
+          <p>Edit <code>activity/case/findings.md</code> and record the finding you recovered from history. Save the file, then inspect your edit:</p>
+          <pre class="code-block"><code>git status
+git diff</code></pre>
+          <p>Read the removed and added lines. In the dashboard, capture the local diff with <strong>Check step</strong> and answer the diff question. Keep the change unstaged until the next mission.</p>
+          <p>Expected state: Git reports the case file as modified, and M3 is solved after your answer.</p>
+        </section>
+        <section class="card" id="m4-save-the-finding">
+          <h2 class="card-title">M4 · Save the finding</h2>
+          <pre class="code-block"><code>git add activity/case/findings.md
+git diff --staged</code></pre>
+          <p>Before committing, click <strong>Check step</strong> in the dashboard to capture this staged state. Then record and share the snapshot:</p>
+          <pre class="code-block"><code>git commit -m "Record first finding"
+git log --oneline
+git push</code></pre>
+          <p>Expected state: the finding appears in a commit on your GitHub <code>main</code>. Refresh the dashboard.</p>
+        </section>
+        <section class="card" id="m5-prepare-two-leads">
+          <h2 class="card-title">M5 · Prepare two leads</h2>
+          <p>Both branches must start from the same pushed <code>main</code>. Create A first:</p>
+          <pre class="code-block"><code>git switch main
+git status
+git switch -c lead-a</code></pre>
+          <p>In <code>activity/case/summary.md</code>, replace the value of the <code>- Final briefing sign-off:</code> line using the history clue. Leave the surrounding case text intact.</p>
+          <pre class="code-block"><code>git diff
+git add activity/case/summary.md
+git commit -m "Propose lead A"
+git push -u origin lead-a
+git switch main
+git switch -c lead-b</code></pre>
+          <p>On B, replace the same line using the courier manifest clue. The line still starts from the original pending value because you returned to <code>main</code> before creating B.</p>
+          <pre class="code-block"><code>git diff
+git add activity/case/summary.md
+git commit -m "Propose lead B"
+git push -u origin lead-b</code></pre>
+          <p>Expected state: two independently pushed branches with different supported edits to the same line. Do not merge either yet.</p>
+        </section>
+        <section class="card" id="m6-open-two-pull-requests">
+          <h2 class="card-title">M6 · Open two pull requests</h2>
+          <ol>
+            <li>In your GitHub repository, choose <strong>Pull requests → New pull request</strong>.</li>
+            <li>Set the base to <code>main</code> and compare to <code>lead-a</code>. Review the diff and create the PR.</li>
+            <li>Repeat with base <code>main</code> and compare <code>lead-b</code>.</li>
+            <li>Record the two different PR URLs in the dashboard and confirm you opened and reviewed each.</li>
+          </ol>
+          <p>Expected state: both PRs are open before the first merge. The dashboard labels these GitHub actions self-confirmed because it does not access your account.</p>
+        </section>
+        <section class="card" id="m7-encounter-and-resolve">
+          <h2 class="card-title">M7 · Encounter and resolve</h2>
+          <p>Merge PR A on GitHub using <strong>Create a merge commit</strong>, rather than squash or rebase. Keep both branch names available through the exercise. PR B should now report a conflict.</p>
+          <pre class="code-block"><code>git switch main
+git pull
+git switch lead-b
+git merge main</code></pre>
+          <p>Git stops with a conflict in the case summary. Run <code>git status</code> and click <strong>Check step</strong> in the dashboard while that conflict is active.</p>
+          <ol>
+            <li>Open the summary in your editor. Read both versions between the conflict markers.</li>
+            <li>Re-read the evidence and write one designated summary line carrying both supported findings.</li>
+            <li>Delete every <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code>, and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> marker line, including the marker labels. Save the file.</li>
+          </ol>
+          <pre class="code-block"><code>git add activity/case/summary.md
+git status
+git diff --staged
+git commit -m "Resolve the briefing conflict"
+git push</code></pre>
+          <p><code>git add</code> tells Git the file is resolved. Status clears the unmerged path after staging; it may still say you are merging until you commit. Refresh the dashboard after the push.</p>
+          <p>Expected state: B contains the committed resolution and its PR is mergeable on GitHub.</p>
+        </section>
+        <section class="card" id="m8-finish-and-retrieve">
+          <h2 class="card-title">M8 · Finish and retrieve</h2>
+          <p>Merge PR B on GitHub using <strong>Create a merge commit</strong>, then retrieve the final result:</p>
+          <pre class="code-block"><code>git switch main
+git pull
+git status
+git log --oneline --graph</code></pre>
+          <p>Read the committed summary, check that every conflict marker is gone, and answer the recall question in the dashboard. Refresh to see all missions solved and your learned concepts.</p>
+          <p>Expected state: local <code>main</code> contains both merges, the working tree is clean, and the dashboard shows 9 of 9 solved.</p>
+        </section>
+        <section class="card" id="recovery">
+          <h2 class="card-title">Recovery help</h2>
+          <h3>Git says a branch has no upstream</h3>
+          <p>For a branch's first push, name it explicitly: <code>git push -u origin lead-a</code> or <code>git push -u origin lead-b</code>. Later pushes from that branch can use <code>git push</code>.</p>
+          <h3>B was created from A</h3>
+          <p>Pause before merging. Preserve the mistaken branch under a backup name, then recreate B from the unchanged <code>main</code> used for A:</p>
+          <pre class="code-block"><code>git switch main
+git branch -m lead-b lead-b-backup
+git switch -c lead-b</code></pre>
+          <p>Reapply only the manifest finding to the designated line, inspect the diff, stage it, and commit. If the mistaken B was already pushed or has a PR, ask the facilitator to help preserve it and replace the remote branch before publishing the corrected B. Keep the backup until the exercise is complete.</p>
+          <h3>The conflict was resolved before capturing it</h3>
+          <p>Keep your work. Ask the facilitator to help replay the conflict in a safe copy. The app requires observing a real conflict and will not accept an ordinary proposal as a resolution.</p>
+          <h3>The working tree is still unmerged after editing</h3>
+          <p>Remove all markers, save, then <code>git add activity/case/summary.md</code>. Run <code>git status</code> again and commit when it says the conflicts are fixed.</p>
+          <h3>The final GitHub merge is missing locally</h3>
+          <p>Run <code>git switch main</code> and <code>git pull</code>. If Git refuses because of local edits, preserve those edits before switching; use <code>git status</code> and ask for help.</p>
+          <h3>An answer or checkpoint was rejected</h3>
+          <p>Read the feedback, check the current Git state, and retry. Do not reset progress to fix a Git mistake: resetting only clears local dashboard answers and checkpoint records.</p>
+          <h3>A push cannot authenticate</h3>
+          <p>Check <code>git remote -v</code> and sign in through your credential manager. GitHub account passwords are not accepted for HTTPS Git pushes. The <a href="https://docs.icts.fyi/docs/en/workshops/first-byte-episode-1/prerequisites">prerequisites guide</a> covers account setup.</p>
+          <h3>A port is already occupied</h3>
+          <p>Close the earlier workshop process with Ctrl+C, or close the app using port 3030 or 3031, then retry. On macOS inspect it with <code>lsof -i tcp:3030</code>; on Windows use <code>Get-NetTCPConnection -LocalPort 3030</code>. Substitute 3031 for the dashboard port.</p>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

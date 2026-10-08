@@ -32,7 +32,10 @@ async function api(path, body) {
     headers: body ? { 'content-type': 'application/json' } : {},
     body: body ? JSON.stringify(body) : undefined,
   })
-  if (!response.ok) throw new Error(`The dashboard server returned ${response.status}.`)
+  if (!response.ok) {
+    const body = await response.json().catch(() => null)
+    throw new Error(body?.error ?? `The dashboard server returned ${response.status}.`)
+  }
   return response.json()
 }
 
@@ -67,7 +70,7 @@ function renderCurrent(data) {
         '.',
       ]),
       el('div', { class: 'mission-links' }, [
-        el('a', { href: mission.guide ?? '#', text: 'Final guide section' }),
+        el('a', { href: data.progress.missions.at(-1)?.guide ?? data.guideRoot, text: 'Final guide section' }),
         el('a', { href: 'http://127.0.0.1:3030', text: 'Concept slides' }),
       ]),
     )
@@ -85,6 +88,7 @@ function renderCurrent(data) {
     ]),
   ]
 
+  if (mission.id === 'm3-local-finding') body.push(checkStepField('unstaged-finding', 'Capture the local diff you just inspected'))
   if (mission.id === 'm4-save') body.push(checkStepField('staged-diff', 'Capture the staged diff you just inspected'))
   if (mission.id === 'm7-resolve') body.push(checkStepField('conflict', 'Capture the conflicted file'))
   if (mission.question) body.push(questionField(mission.question, data.state.answers[mission.question.id]))
@@ -175,10 +179,9 @@ function confirmationField(spec, confirmations) {
       placeholder: 'https://github.com/…/pull/1',
       autocomplete: 'off',
     })
-    const isLeadA = item.key === 'pr-lead-a'
     const toggle = el('label', { class: 'choice' }, [
-      el('input', { type: 'checkbox', checked: isLeadA ? Boolean(entry.mergedAt) : Boolean(entry.openedAt) }),
-      el('span', { text: isLeadA ? 'I have merged this pull request' : 'This pull request is open' }),
+      el('input', { type: 'checkbox', checked: Boolean(entry.openedAt) }),
+      el('span', { text: 'I have opened and reviewed this pull request' }),
     ])
 
     wrap.append(
@@ -196,8 +199,7 @@ function confirmationField(spec, confirmations) {
       send('/api/confirm', {
         key: item.key,
         url: input.value,
-        mergedAt: isLeadA && checked ? stamp : '',
-        openedAt: !isLeadA && checked ? stamp : '',
+        openedAt: checked ? stamp : '',
       })
     }
   }
@@ -246,6 +248,7 @@ function renderRepoState(data) {
 }
 
 function render(data) {
+  document.getElementById('progress-count').classList.remove('error-text')
   renderMissionList(data)
   renderCurrent(data)
   renderConcepts(data)
@@ -263,7 +266,10 @@ async function send(path, body) {
   try {
     render(await api(path, body))
   } catch (error) {
-    showError(error.message)
+    document.getElementById('action-feedback')?.remove()
+    document.getElementById('current-mission-body').prepend(el('p', {
+      id: 'action-feedback', class: 'notice error-text', role: 'alert', text: error.message,
+    }))
   }
 }
 

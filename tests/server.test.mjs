@@ -49,6 +49,10 @@ describe('dashboard server', () => {
     expect(script.status).toBe(200)
     expect(script.headers.get('content-type')).toContain('javascript')
 
+    const guide = await fetch('http://127.0.0.1:3131/guide.html')
+    expect(guide.status).toBe(200)
+    expect(await guide.text()).toContain('id="m7-encounter-and-resolve"')
+
     const refused = await fetch('http://localhost:3131/').catch(() => null)
     const localhostOk = refused ? refused.status === 200 : false
     expect(typeof localhostOk).toBe('boolean')
@@ -76,7 +80,11 @@ describe('dashboard server', () => {
 
   test('observes a clean tree and an unstaged case file by itself', async () => {
     const before = await post('/api/checkpoint', { key: 'unstaged-finding', label: 'from the test' })
-    expect(mission(before.body, 'm3-local-finding').feedback).toContain('observed')
+    expect(before.status).toBe(409)
+    const missing = await get('/api/progress')
+    expect(missing.body.state.checkpoints['unstaged-finding']).toBeUndefined()
+
+    writeIn(workspace.clone, FINDINGS, '# Findings\n\nAn observation from history.\n')
 
     const state = await get('/api/progress')
     expect(state.body.state.checkpoints['unstaged-finding']).toBeDefined()
@@ -85,7 +93,7 @@ describe('dashboard server', () => {
   test('captures the staged diff only through the explicit Check step action', async () => {
     writeIn(workspace.clone, FINDINGS, '# Findings\n\n## Finding 1\n\nSign-off: 09:20 by N. Perera.\n')
     git(workspace.clone, ['add', FINDINGS])
-    const beforeCapture = await post('/api/checkpoint', { key: 'noop', label: 'no-op' })
+    const beforeCapture = await get('/api/progress')
     expect(mission(beforeCapture.body, 'm4-save').feedback).toContain('Check step')
 
     const captured = await post('/api/checkpoint', { key: 'staged-diff', label: 'git diff --staged' })
@@ -109,10 +117,10 @@ describe('dashboard server', () => {
     const opened = await post('/api/confirm', { key: 'pr-lead-a', url: 'https://github.com/me/case/pull/1', openedAt: 'now' })
     expect(mission(opened.body, 'm6-pull-requests').feedback).toContain('self-confirmed')
 
-    const merged = await post('/api/confirm', { key: 'pr-lead-a', url: 'https://github.com/me/case/pull/1', mergedAt: 'now', openedAt: 'now' })
     const other = await post('/api/confirm', { key: 'pr-lead-b', url: 'https://github.com/me/case/pull/2', openedAt: 'now' })
-    expect(mission(merged.body, 'm6-pull-requests').verified).toBe(false)
     expect(mission(other.body, 'm6-pull-requests').verified).toBe(true)
+    const merged = await post('/api/confirm', { key: 'pr-lead-a', url: 'https://github.com/me/case/pull/1', mergedAt: 'now', openedAt: 'now' })
+    expect(mission(merged.body, 'm6-pull-requests').verified).toBe(true)
   })
 
   test('keeps learner progress in an ignored state file and resets without touching Git', async () => {
@@ -144,7 +152,7 @@ describe('dashboard server', () => {
   test('never writes to the repository or runs mutating Git', async () => {
     const before = git(workspace.clone, ['status', '--porcelain'])
     await get('/api/progress')
-    await post('/api/checkpoint', { key: 'probe', label: 'probe' })
+    expect((await post('/api/checkpoint', { key: 'probe', label: 'probe' })).status).toBe(400)
     expect(git(workspace.clone, ['status', '--porcelain'])).toBe(before)
   })
 

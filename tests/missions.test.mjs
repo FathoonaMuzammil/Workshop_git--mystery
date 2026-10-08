@@ -147,6 +147,7 @@ describe('conflict rehearsal in temporary repositories', () => {
     expect(result.finalSummary).not.toContain('<<<<<<<')
 
     const last = result.steps.at(-1)
+    for (const step of result.steps) expect(step.solved).toContain(step.expectation)
     expect(last.solved).toContain('m8-finish')
     expect(last.progress.progress.solved).toBe(9)
     expect(last.progress.progress.learnedConcepts).toContain('conflict-markers')

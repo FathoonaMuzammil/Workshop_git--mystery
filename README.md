@@ -73,6 +73,11 @@ The dashboard shows the current mission, its checkpoint, and what to do next. Ch
 read from Git are labelled **verified**; GitHub steps are labelled **self-confirmed**,
 because the app never touches your GitHub account.
 
+The full follow-along guide is served locally at `http://127.0.0.1:3031/guide.html`.
+It includes every mission and recovery help without revealing the mystery answers.
+The [workshop overview and prerequisites](https://docs.icts.fyi/docs/en/workshops/first-byte-episode-1)
+are on ICTS Docs.
+
 ## How progress is stored
 
 Answers, self-confirmations, and captured checkpoints live in
@@ -89,7 +94,7 @@ no shell, no user-supplied command strings, and no mutating command.
 bun run test
 ```
 
-25 tests over three files, all driving real Git:
+Tests drive real Git repositories and the dashboard's browser script:
 
 - `tests/missions.test.mjs` — the history fixture, mission evaluation, and a full conflict
   rehearsal: two leads from one base, a real merge conflict on the designated line, a local
@@ -98,7 +103,11 @@ bun run test
   bare remote: answers, checkpoints, self-confirmations, reset, malformed requests, and a
   check that nothing in the repository changed.
 - `tests/startup.test.mjs` — the one start command, both ports answering, clean shutdown,
-  and the occupied-port error.
+  and occupied-port errors for both servers.
+- `tests/readiness.test.mjs` — wrong branch bases, checkpoint validation, PR flow,
+  and unresolved conflict markers.
+- `tests/dashboard.test.mjs` — usable mission controls, local guide navigation,
+  and the completed dashboard in a DOM environment.
 
 Run the rehearsal on its own any time with `bun run rehearse`.
 

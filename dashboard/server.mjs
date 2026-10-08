@@ -6,6 +6,7 @@ import { DASHBOARD_PORT, HOST } from '../config.mjs'
 import { createEvaluator } from '../lib/missions.mjs'
 import { createObserver } from '../lib/observe.mjs'
 import { createStateStore } from '../lib/state.mjs'
+import { captureCheckpoint, CHECKPOINT_KEYS } from '../lib/checkpoints.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const publicDir = resolve(here, 'public')
@@ -102,8 +103,15 @@ export function createDashboard({ repoRoot, port = DASHBOARD_PORT, host = HOST, 
           if (typeof body.key !== 'string') {
             return sendJson(res, 400, { error: 'checkpoint needs a key' })
           }
+          if (!CHECKPOINT_KEYS.includes(body.key)) return sendJson(res, 400, { error: 'unknown checkpoint' })
+          let checkpoint
+          try {
+            checkpoint = await captureCheckpoint(evaluator.git, body.key)
+          } catch (error) {
+            return sendJson(res, 409, { error: error.message })
+          }
           const state = store.read()
-          state.checkpoints[body.key] = { at: new Date().toISOString(), label: String(body.label ?? body.key) }
+          state.checkpoints[body.key] = checkpoint
           store.write(state)
           return sendJson(res, 200, await progress())
         }

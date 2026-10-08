@@ -5,6 +5,7 @@ import { LEADS, REPO_PATHS } from '../config.mjs'
 import { createEvaluator } from '../lib/missions.mjs'
 import { createObserver } from '../lib/observe.mjs'
 import { createStateStore } from '../lib/state.mjs'
+import { captureCheckpoint } from '../lib/checkpoints.mjs'
 import { cleanup, git, makeWorkspace, readIn, writeIn } from './workspace.mjs'
 
 const [LEAD_A, LEAD_B] = LEADS
@@ -18,6 +19,10 @@ export function summaryLine(text) {
 
 function setSummaryLine(dir, value) {
   const current = readIn(dir, SUMMARY)
+  if (current.includes('<<<<<<<')) {
+    writeIn(dir, SUMMARY, current.replace(/^<<<<<<<[^\n]*\n[\s\S]*?^>>>>>>>[^\n]*/m, `- ${SIGN_OFF_LINE} ${value}`))
+    return
+  }
   const lines = current.split('\n')
   const index = lines.findIndex((row) => row.includes(SIGN_OFF_LINE))
   if (index === -1) throw new Error(`designated line missing from ${SUMMARY}`)
@@ -90,7 +95,7 @@ export async function runRehearsal({ prefix = 'first-byte-rehearsal-' } = {}) {
 
     // Phase 4 — stage, capture, commit, push.
     git(clone, ['add', FINDINGS])
-    store.write({ ...store.read(), checkpoints: { ...store.read().checkpoints, 'staged-diff': { at: 'rehearsal', label: 'staged diff' } } })
+    store.write({ ...store.read(), checkpoints: { ...store.read().checkpoints, 'staged-diff': await captureCheckpoint(evaluator.git, 'staged-diff') } })
     await record('staged diff captured', 'm3-local-finding')
 
     git(clone, ['commit', '-m', 'Record first finding'])
@@ -120,7 +125,7 @@ export async function runRehearsal({ prefix = 'first-byte-rehearsal-' } = {}) {
         'pr-lead-b': { url: 'https://github.com/learner/case-fb01/pull/2', openedAt: 'rehearsal' },
       },
     })
-    await record('two pull requests recorded', 'm5-leads')
+    await record('two pull requests recorded', 'm6-pull-requests')
 
     // Phase 7 — merge pull request A, then pull it down.
     githubMergePullRequest(clone, LEAD_A, 1)
@@ -133,7 +138,7 @@ export async function runRehearsal({ prefix = 'first-byte-rehearsal-' } = {}) {
     const mergeOutput = git(clone, ['merge', 'main'], { allowFail: true })
     const conflicted = mergeOutput === null
     const unmerged = git(clone, ['diff', '--name-only', '--diff-filter=U']).trim()
-    store.write({ ...store.read(), checkpoints: { ...store.read().checkpoints, conflict: { at: 'rehearsal', label: 'conflict markers' } } })
+    store.write({ ...store.read(), checkpoints: { ...store.read().checkpoints, conflict: await captureCheckpoint(evaluator.git, 'conflict') } })
 
     // The reasoned resolution: keep both supported facts on the one line.
     setSummaryLine(clone, `${recovered}; sealed copy received at 11:05 at Gate C by Desk Officer S. Silva`)

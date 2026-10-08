@@ -7,8 +7,8 @@ export const DASHBOARD_URL = `http://${HOST}:${DASHBOARD_PORT}`
 
 export const SLIDES_ENTRY = 'slides/index.md'
 
-// Learner guide lives in ICTS Docs. Replace this base when the workshop entry is published.
-export const GUIDE_BASE = 'https://docs.icts.tools/workshops/first-byte-git-mystery'
+// Follow-along steps stay available even when the learner is offline.
+export const GUIDE_BASE = '/guide.html'
 
 export const REPO_PATHS = {
   activity: 'activity',

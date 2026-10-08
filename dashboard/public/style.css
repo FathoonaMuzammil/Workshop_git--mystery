@@ -128,6 +128,15 @@ a {
   margin-top: var(--spacing-24);
 }
 
+.guide section,
+.guide h1 {
+  scroll-margin-top: calc(var(--spacing-64) + var(--spacing-24));
+}
+
+.guide pre {
+  overflow-x: auto;
+}
+
 .card-title {
   font-size: var(--text-subheading);
   font-weight: var(--font-weight-semibold);
