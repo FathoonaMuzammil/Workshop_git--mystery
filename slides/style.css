@@ -324,6 +324,7 @@
 }
 
 .slide-conflict {
+  margin: 0;
   font-family: var(--font-mono);
   font-size: 13px;
   line-height: 20px;
@@ -333,4 +334,54 @@
   padding: 16px 20px;
   white-space: pre;
   overflow-x: auto;
+}
+
+/* Learn-while-doing note: short explanation the learner can read mid-activity */
+
+.slide-note {
+  background: var(--surface-tinted-highlight);
+  border-left: 3px solid var(--color-iris-bolt);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body-sm);
+  color: var(--color-deep-indigo);
+}
+
+.slide-note b {
+  color: var(--color-ink-charcoal);
+  font-weight: var(--font-weight-semibold);
+}
+
+.slide-note + .slide-note {
+  margin-top: 12px;
+}
+
+.slide-note-title {
+  display: block;
+  font-size: var(--text-caption);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-iris-bolt);
+  margin-bottom: 4px;
+}
+
+/* Code blocks: force the light card surface over Shiki's inline background */
+.slidev-layout .shiki,
+.slidev-layout div[class*='language-'],
+.slidev-layout pre {
+  background-color: var(--surface-card-surface) !important;
+}
+
+.slidev-layout pre {
+  border: 1px solid var(--color-mist-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 20px;
+}
+
+.slidev-layout pre code {
+  background-color: transparent !important;
+  font-size: 15px;
+  line-height: 24px;
 }
