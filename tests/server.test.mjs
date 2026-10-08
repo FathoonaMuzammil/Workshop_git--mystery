@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { createDashboard } from '../dashboard/server.mjs'
 import { createObserver } from '../lib/observe.mjs'
-import { cleanup, git, makeWorkspace } from '../scripts/workspace.mjs'
+import { cleanup, git, makeWorkspace, readIn, writeIn } from '../scripts/workspace.mjs'
 import { FINDINGS, SUMMARY } from './fixtures.mjs'
 
 let workspace
@@ -83,6 +83,7 @@ describe('dashboard server', () => {
   })
 
   test('captures the staged diff only through the explicit Check step action', async () => {
+    writeIn(workspace.clone, FINDINGS, '# Findings\n\n## Finding 1\n\nSign-off: 09:20 by N. Perera.\n')
     git(workspace.clone, ['add', FINDINGS])
     const beforeCapture = await post('/api/checkpoint', { key: 'noop', label: 'no-op' })
     expect(mission(beforeCapture.body, 'm4-save').feedback).toContain('Check step')
@@ -154,6 +155,7 @@ describe('dashboard server', () => {
     const store = createStateStore(workspace.clone)
     const observe = createObserver({ git: evaluator.git, store })
 
+    writeIn(workspace.clone, FINDINGS, `${readIn(workspace.clone, FINDINGS)}\nA second observation.\n`)
     git(workspace.clone, ['add', FINDINGS])
     const state = await observe(store.read())
     expect(state.checkpoints['staged-diff']).toBeUndefined()
