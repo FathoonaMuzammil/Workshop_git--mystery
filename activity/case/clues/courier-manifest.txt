@@ -1,0 +1,14 @@
+COURIER MANIFEST - SEALED DISPATCH
+==================================
+
+Case:            FB-01 Heliograph launch records
+Contents:        1 sealed briefing copy, 1 signature slip
+Seal number:     H-0910-4
+Picked up:       10:40, records desk handoff
+Route:           records desk -> gate C -> case office
+Delivered:       11:05, gate C
+Received by:     Desk Officer S. Silva
+Receipt state:   signed for, seal intact
+
+The manifest records who carried the sealed copy and who took it at the gate.
+It does not record the sign-off of the briefing itself.
