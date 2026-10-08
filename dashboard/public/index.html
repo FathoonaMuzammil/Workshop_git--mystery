@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>First Byte — Git and GitHub Mystery</title>
+    <link rel="preload" href="/fonts/instrument-sans-latin-variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/tokens.css" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#current-mission">Skip to current mission</a>
+
+    <nav class="nav" aria-label="Workshop">
+      <div class="nav-inner">
+        <div class="brand">
+          <span class="brand-mark">First Byte</span>
+          <span class="brand-sub">Git and GitHub Mystery · Case FB-01</span>
+        </div>
+        <div class="nav-actions">
+          <a class="pill-button" href="http://127.0.0.1:3030" target="_blank" rel="noreferrer">Concept slides</a>
+          <button type="button" class="ghost-pill-button" id="refresh">Refresh</button>
+          <button type="button" class="ghost-text-link" id="reset">Reset progress</button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="rail">
+      <div>
+        <section class="card" aria-labelledby="progress-heading">
+          <div class="progress-head">
+            <h2 class="card-title" id="progress-heading">Missions</h2>
+            <span class="progress-caption" id="progress-count" role="status" aria-live="polite">Loading…</span>
+          </div>
+          <ol class="mission-list" id="mission-list"></ol>
+        </section>
+
+        <section class="card" aria-labelledby="state-heading">
+          <h2 class="card-title" id="state-heading">Repository state</h2>
+          <p class="notice">
+            Read-only. The dashboard never runs a command that changes your repository.
+          </p>
+          <dl class="state-list" id="repo-state"></dl>
+        </section>
+      </div>
+
+      <div>
+        <section class="card card-accent" aria-labelledby="current-heading" id="current-mission" tabindex="-1">
+          <h2 class="card-title" id="current-heading">Current mission</h2>
+          <div id="current-mission-body">
+            <p class="notice">Loading…</p>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="concepts-heading">
+          <h2 class="card-title" id="concepts-heading">Learned concepts</h2>
+          <p class="notice">Highlighted once the mission that teaches it is solved.</p>
+          <ul class="concept-list" id="concepts-list"></ul>
+        </section>
+      </div>
+    </main>
+
+    <footer class="foot">
+      <div class="foot-inner">
+        <p id="foot-guide">Full procedural steps, expected Git states, and recovery help live in the learner guide.</p>
+        <p>Verified checkpoints are read from your local Git. GitHub steps are labelled self-confirmed.</p>
+      </div>
+    </footer>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
