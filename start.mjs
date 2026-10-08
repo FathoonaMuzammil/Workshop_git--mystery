@@ -2,6 +2,7 @@
 import { spawn, spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { platform } from 'node:os'
+import { createServer as createPortProbe } from 'node:net'
 import { dirname, resolve } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { fileURLToPath } from 'node:url'
@@ -78,9 +79,22 @@ async function waitFor(url, label, timeoutMs) {
     if (await probe(url)) return true
     await delay(250)
   }
-  fail(`${label} did not respond on ${url}.`, [
-    'Check the terminal output above for the reason, fix it, and run `bun run start` again.',
-  ])
+  throw new Error(`${label} did not respond on ${url}. Check the terminal output above, fix the problem, and run bun run start again.`)
+}
+
+async function checkPort(port) {
+  const probeServer = createPortProbe()
+  try {
+    await new Promise((resolvePromise, rejectPromise) => {
+      probeServer.once('error', rejectPromise)
+      probeServer.listen(port, HOST, resolvePromise)
+    })
+  } catch (error) {
+    if (error.code !== 'EADDRINUSE') throw error
+    const inspect = platform() === 'win32' ? `Get-NetTCPConnection -LocalPort ${port}` : `lsof -i tcp:${port}`
+    throw new Error(`Port ${port} is already in use. Close the app using that port, then run bun run start again.\nInspect it with: ${inspect}`)
+  }
+  await new Promise((resolvePromise) => probeServer.close(resolvePromise))
 }
 
 function openInBrowser(url) {
@@ -93,7 +107,7 @@ function openInBrowser(url) {
 }
 
 function startSlides() {
-  return spawn(process.execPath, [slidevBin(), SLIDES_ENTRY, '--port', String(SLIDES_PORT), '--remote', HOST], {
+  return spawn(process.execPath, [slidevBin(), SLIDES_ENTRY, '--port', String(SLIDES_PORT), '--remote', '', '--bind', HOST], {
     cwd: repoRoot,
     stdio: 'inherit',
     env: { ...process.env, BROWSER: 'none' },
@@ -102,6 +116,8 @@ function startSlides() {
 
 async function main() {
   checkPrerequisites()
+  await checkPort(SLIDES_PORT)
+  await checkPort(DASHBOARD_PORT)
 
   const dashboard = createDashboard({ repoRoot, log: (message) => process.stderr.write(`${message}\n`) })
 
@@ -120,7 +136,10 @@ async function main() {
 
   const slides = startSlides()
 
+  let stopping = false
   const stop = async (code) => {
+    if (stopping) return
+    stopping = true
     slides.kill('SIGTERM')
     // Never let a lingering socket keep the port bound after shutdown.
     await Promise.race([dashboard.close().catch(() => {}), delay(2000)])
@@ -130,12 +149,23 @@ async function main() {
   process.on('SIGINT', () => stop(0))
   process.on('SIGTERM', () => stop(0))
   slides.on('exit', (code) => {
+    if (stopping) return
     process.stderr.write(`\nSlides stopped (exit ${code}). Stopping the dashboard too.\n`)
     stop(code ?? 0)
   })
+  slides.on('error', (error) => {
+    process.stderr.write(`Slides failed to start: ${error.message}\n`)
+    stop(1)
+  })
 
-  await waitFor(SLIDES_URL, 'Slides', OPEN_TIMEOUT_MS)
-  await waitFor(`${DASHBOARD_URL}/health`, 'Dashboard', 15_000)
+  try {
+    await waitFor(SLIDES_URL, 'Slides', OPEN_TIMEOUT_MS)
+    await waitFor(`${DASHBOARD_URL}/health`, 'Dashboard', 15_000)
+  } catch (error) {
+    process.stderr.write(`${error.message}\n`)
+    await stop(1)
+    return
+  }
 
   process.stdout.write(`\nSlides:    ${SLIDES_URL}\nDashboard: ${DASHBOARD_URL}\n\n`)
   if (process.env.WORKSHOP_NO_BROWSER === '1') {

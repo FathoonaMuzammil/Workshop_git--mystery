@@ -60,7 +60,7 @@ describe('one start command', () => {
     expect(dashboardDown).toBe(true)
   }, 240_000)
 
-  test('refuses to start on an occupied port and says how to recover', async () => {
+  test.each([DASHBOARD_PORT, SLIDES_PORT])('refuses to start on occupied port %s and says how to recover', async (port) => {
     // The previous test just shut the launcher down; wait for the port to be free.
     const released = await waitUntil(
       async () => !(await probe(`http://127.0.0.1:${DASHBOARD_PORT}/health`)),
@@ -69,7 +69,7 @@ describe('one start command', () => {
     expect(released).toBe(true)
 
     const blocker = createServer((_req, res) => res.end('blocked'))
-    await new Promise((r) => blocker.listen(DASHBOARD_PORT, '127.0.0.1', r))
+    await new Promise((r) => blocker.listen(port, '127.0.0.1', r))
 
     try {
       const failure = spawn(process.execPath, [launcher], { cwd: sourceRoot, env: startEnv, stdio: 'pipe' })
@@ -80,7 +80,7 @@ describe('one start command', () => {
       const code = await new Promise((r) => failure.on('exit', r))
 
       expect(code).not.toBe(0)
-      expect(output).toContain(`${DASHBOARD_PORT}`)
+      expect(output).toContain(`${port}`)
       expect(output).toContain('lsof')
     } finally {
       await new Promise((r) => blocker.close(r))

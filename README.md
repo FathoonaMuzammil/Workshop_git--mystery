@@ -109,6 +109,8 @@ Tests drive real Git repositories and the dashboard's browser script:
 - `tests/dashboard.test.mjs` — usable mission controls, local guide navigation,
   and the completed dashboard in a DOM environment.
 
+Build the slide deck with `bun run build:slides`.
+
 Run the rehearsal on its own any time with `bun run rehearse`.
 
 ## Design

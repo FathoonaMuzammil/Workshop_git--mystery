@@ -13,6 +13,7 @@
   "packageManager": "bun@1.4.2",
   "private": true,
   "scripts": {
+    "build:slides": "bun run ./node_modules/@slidev/cli/bin/slidev.mjs build slides/index.md",
     "start": "bun run ./start.mjs",
     "dashboard": "bun run ./dashboard/server.mjs",
     "slides": "bun run ./node_modules/@slidev/cli/bin/slidev.mjs slides/index.md --port 3030",
