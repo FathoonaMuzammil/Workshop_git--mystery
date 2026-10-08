@@ -22,3 +22,6 @@ export const STATE_DIR = '.workshop-state'
 export const STATE_FILE = `${STATE_DIR}/progress.json`
 
 export const LEADS = ['lead-a', 'lead-b']
+
+// Learners clone the starter repository from here at the start of the workshop.
+export const STARTER_REPO_URL = 'https://github.com/universitysjp/git-mystery'
