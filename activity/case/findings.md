@@ -4,7 +4,7 @@ Write your findings here as you recover them. One finding first, then both.
 
 ## Finding 1 — from the repository history
 
-<!-- Replace this line with what you recovered, and where you recovered it from. -->
+> Final briefing sign-off: signed at 09:20 by Deputy Archivist N. Perera.
 
 ## Finding 2 — from the courier manifest
 
