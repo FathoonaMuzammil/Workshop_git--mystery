@@ -1,4 +1,4 @@
-
+#Workshop
 # First Byte — Git and GitHub Mystery
 
 Case FB-01. A morning briefing was filed, then vanished from the archive. Two fragments

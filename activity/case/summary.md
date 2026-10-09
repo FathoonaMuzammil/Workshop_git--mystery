@@ -24,7 +24,7 @@ edited. The other travelled with a courier.
 
 These four lines are the case record. Both leads change only the first one.
 
-- Final briefing sign-off: PENDING
+- Final briefing sign-off: signed at 09:20 by Deputy Archivist N. Perera.
 - Sign-off recovered from history: not yet
 - Sealed copy recovered from courier manifest: not yet
 - Conclusion: not yet
